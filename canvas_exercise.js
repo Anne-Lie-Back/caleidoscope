@@ -1,25 +1,58 @@
-window.addEventListener('load', draw)
+window.addEventListener('load', init)
+window.addEventListener('resize', draw)
+
+
+
+
+function init(){
+    window.addEventListener('keypress', onKeyPress)
+
+    let isPointModeActive = false
+    let nrOfDots = "10000"
+    let multiplier = 0
+
+    draw(Number(nrOfDots),multiplier)
+
+        /**
+     * 
+     * @param {KeyboardEvent} event event
+     */
+    function onKeyPress(event){
+        console.log(isPointModeActive)
+        
+        if(event.key === "p"){
+            isPointModeActive = true
+            nrOfDots = ""
+        }
+
+        if(Number.isInteger(Number(event.key)) && isPointModeActive){
+            nrOfDots += event.key
+        }
+
+        draw(Number(nrOfDots), multiplier) 
+    }
+}
 
 /**
  * The main function of this script responsible for drawing
  * multiple beatiful pattern onto the screen
  */
-function draw() {
+function draw(nrOfDots, multiplier) {
+    
     // Get the canvas element and it's context
     const canvas = document.querySelector("canvas")
     const context = canvas.getContext("2d")
 
     // Resize to fullscreen canvas
-    canvas.width = window.innerWidth
+    canvas.width = window.innerWidth 
     canvas.height = window.innerHeight
+    
+    //Define initial values
 
-     
-    const nrOfDots = 1000
-    const multiplier = 500
-    const radius = 300
+    const radius = Math.min(canvas.width, canvas.height)/2.5
     const center = {
-        x: 400,
-        y: 400
+        x: canvas.width/2,
+        y: canvas.height/2
     }
 
     // Clears the screen before drawing
@@ -31,6 +64,7 @@ function draw() {
     drawDots(context, nrOfDots, dots)
     drawLines(context, nrOfDots, multiplier, dots)
 }
+
 /**
  * @param {Number} nrOfDots
  * @param {Number} radius
@@ -56,13 +90,13 @@ function generateDotPositions(nrOfDots, radius, center){
  * Draws a thin and faded outline circle on the screen.
  * @param {CanvasRenderingContext2D} context
  * @param {Number} radius
- * @param{{ x:Number, y:Number }} center
+ * @param{dot} center
  */
 function drawCirce(context, radius, center) {
-    center = {
+/*     center = {
         x: 400,
         y: 400
-    }
+    } */
 
     context.beginPath()
     context.strokeStyle = 'lightgrey'
@@ -75,18 +109,19 @@ function drawCirce(context, radius, center) {
  * Draws each dot onto the outline circle.
  * @param {CanvasRenderingContext2D} context
  * @param {Number} - nrOfDots
- * @param {Array< {x:Number, y:Number }>} dots
+ * @param {Array<dot>} dots
  * 
  */
 function drawDots(context, nrOfDots, dots) {
-    const dotSize = 5
+    const dotSize =25/ Math.sqrt(nrOfDots)
     // Prepare drawing dots
     context.beginPath()
-    context.fillStyle = 'red'
+    context.fillStyle = 'skyblue'
 
     // Add all dots
     for (let i = 0; i < nrOfDots; i++) {
         const {x, y} = dots[i]
+    
         // Draw the dots
         context.moveTo(x, y)
         context.arc(x, y, dotSize, 0, 2 * Math.PI)
@@ -102,10 +137,9 @@ function drawDots(context, nrOfDots, dots) {
  * @param {CanvasRenderingContext2D} context
  * @param {Number} - nrOfDots
  * @param{Number} - multiplier
- * @param {Array< {x:Number, y:Number }>} dots
+ * @param {Array<dot>} dots
  */
 function drawLines(context, nrOfDots, multiplier, dots) {
-    
 
     for (let i = 0; i < nrOfDots; i++) {
         // Select starting dot and calulate next dot
@@ -113,7 +147,7 @@ function drawLines(context, nrOfDots, multiplier, dots) {
         const endDot = dots[i * multiplier % nrOfDots]
 
         // Draw the line between the dots in different colors
-        context.strokeStyle = `hsl(${360 / nrOfDots * i}, 100%, 40%)`
+        context.strokeStyle = `hsl(${360 / nrOfDots * i}, 100%, 70%)`
         context.beginPath()
         context.moveTo(startDot.x, startDot.y)
         context.lineTo(endDot.x, endDot.y)
@@ -121,3 +155,8 @@ function drawLines(context, nrOfDots, multiplier, dots) {
         context.closePath()
     }
 }
+
+/**
+ * An object with location properties in a 2D space
+ * @typedef {{ x: Number, y:Number}} dot
+ */
